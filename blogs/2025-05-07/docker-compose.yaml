@@ -1,0 +1,15 @@
+name: example-project
+services:
+  example:
+    image: example
+    build:
+      context: .
+      target: example
+    stop_signal: SIGINT
+  tests:
+    image: tests
+    build:
+      context: .
+      target: tests
+    volumes:
+      - /tmp/example-out:/tmp/example-out
