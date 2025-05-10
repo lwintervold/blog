@@ -63,12 +63,12 @@ async def main():
 
     for sleep_batch in sleep_batched:
         await asyncio.gather(*sleep_batch)
-    print("total batch time: %s", time.monotonic() - batch_start_time)
+    print("total batch time:", time.monotonic() - batch_start_time)
 
 
     concurrent_start_time = time.monotonic()
     result = await concurrent_gather([asyncio.sleep(t) for t in sleep_times], 3)
-    print("total concurrent time: %s", time.monotonic() - concurrent_start_time)
+    print("total concurrent time:", time.monotonic() - concurrent_start_time)
 
 if __name__ == "__main__":
     asyncio.run(main())
