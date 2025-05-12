@@ -25,24 +25,22 @@ A better solution will be more aware of the executions of the individual tasks, 
 An example that follows some of the semantics of `asyncio.gather()`:
 ```
 async def concurrent_gather(coros: Iterable[Awaitable], concurrency: int):
-    semaphore = asyncio.Semaphore(concurrency)
     to_run = enumerate(coros)
     to_return = [None for _ in range(len(coros))]
 
     async def runner():
         while True:
-            async with semaphore:
-                try:
-                    ix, work = next(to_run)
-                except StopIteration:
-                    return
+            try:
+                ix, work = next(to_run)
+            except StopIteration:
+                return
 
-                try:
-                    result = await work
-                except BaseException as e:
-                    result = e
+            try:
+                result = await work
+            except BaseException as e:
+                result = e
 
-                to_return[ix] = result
+            to_return[ix] = result
 
     await asyncio.gather(*[runner() for _ in range(concurrency)])
     return to_return

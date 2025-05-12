@@ -17,32 +17,33 @@ async def foo():
     val = 0.1 + random.uniform(-0.1, 0.1)
     if val < 0.19:
         await asyncio.sleep(val)
+        COUNTER -= 1
+        print("COUNTER", COUNTER)
     else:
+        COUNTER -= 1
+        print("COUNTER", COUNTER)
         raise ValueError("Operation failed")
-    COUNTER -= 1
-    print("COUNTER", COUNTER)
+
     return ret
 
 
 async def concurrent_gather(coros: Iterable[Awaitable], concurrency: int):
-    semaphore = asyncio.Semaphore(concurrency)
     to_run = enumerate(coros)
     to_return = [None for _ in range(len(coros))]
 
     async def runner():
         while True:
-            async with semaphore:
-                try:
-                    ix, work = next(to_run)
-                except StopIteration:
-                    return
+            try:
+                ix, work = next(to_run)
+            except StopIteration:
+                return
 
-                try:
-                    result = await work
-                except BaseException as e:
-                    result = e
+            try:
+                result = await work
+            except BaseException as e:
+                result = e
 
-                to_return[ix] = result
+            to_return[ix] = result
 
     await asyncio.gather(*[runner() for _ in range(concurrency)])
     return to_return
